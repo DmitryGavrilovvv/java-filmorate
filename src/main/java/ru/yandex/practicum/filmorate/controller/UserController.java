@@ -20,13 +20,14 @@ public class UserController {
 
     @GetMapping
     public Collection<User> getUsers() {
-        log.info("Отправлен ответ Get /users : {}", users.values());
-        return users.values();
+        Collection<User> resUsers = users.values();
+        log.info("Отправлен ответ Get /users : {}", resUsers);
+        return resUsers;
     }
 
     @PostMapping
     public User addUser(@RequestBody User user) {
-        log.info("пришел Post запрос /users с пользователем: {}", user.toString());
+        log.info("пришел Post запрос /users с пользователем: {}", user);
         validateUser(user);
         user.setId(++idGenerator);
         users.put(user.getId(), user);
@@ -36,7 +37,7 @@ public class UserController {
 
     @PutMapping
     public User updateUser(@RequestBody User user) {
-        log.info("пришел Put запрос /users с пользователем: {}", user.toString());
+        log.info("пришел Put запрос /users с пользователем: {}", user);
         validateUser(user);
         User oldUser = users.get(user.getId());
         if (oldUser == null) {

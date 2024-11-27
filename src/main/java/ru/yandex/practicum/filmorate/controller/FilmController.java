@@ -22,13 +22,14 @@ public class FilmController {
 
     @GetMapping
     public Collection<Film> getFilms() {
-        log.info("Отправлен ответ Get /films : {}", films.values());
-        return films.values();
+        Collection<Film> resFilms = films.values();
+        log.info("Отправлен ответ Get /films : {}", resFilms);
+        return resFilms;
     }
 
     @PostMapping
     public Film addFilm(@RequestBody Film film) {
-        log.info("пришел Post запрос /films с фильмом: {}", film.toString());
+        log.info("пришел Post запрос /films с фильмом: {}", film);
         validateFilm(film);
         film.setId(++idGenerator);
         films.put(film.getId(), film);
@@ -38,7 +39,7 @@ public class FilmController {
 
     @PutMapping
     public Film updateFilm(@RequestBody Film film) {
-        log.info("пришел Put запрос /films с фильмом: {}", film.toString());
+        log.info("пришел Put запрос /films с фильмом: {}", film);
         validateFilm(film);
         Film oldFilm = films.get(film.getId());
         if (oldFilm == null) {
