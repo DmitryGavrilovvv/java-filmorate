@@ -15,57 +15,59 @@ import java.util.Map;
 @Slf4j
 @RequestMapping("/users")
 public class UserController {
-    public Map<Integer, User> users = new HashMap<>();
+    public final Map<Integer, User> users = new HashMap<>();
+    private int idGenerator = 0;
 
     @GetMapping
     public Collection<User> getUsers() {
+        log.info("Отправлен ответ Get /users : {}", users.values());
         return users.values();
     }
 
     @PostMapping
     public User addUser(@RequestBody User user) {
-        user.setId(getNextId());
+        log.info("пришел Post запрос /users с пользователем: {}", user.toString());
         validateUser(user);
+        user.setId(++idGenerator);
         users.put(user.getId(), user);
+        log.info("Отправлен ответ Post /users с пользователем: {}", user);
         return user;
     }
 
     @PutMapping
     public User updateUser(@RequestBody User user) {
+        log.info("пришел Put запрос /users с пользователем: {}", user.toString());
+        validateUser(user);
         User oldUser = users.get(user.getId());
         if (oldUser == null) {
+            log.error("Пользователь с id {} не найден", user.getId());
             throw new NotFoundException("Пользователь не найден");
         }
-        validateUser(user);
         users.put(user.getId(), user);
+        log.info("Отправлен ответ Put /users с пользователем: {}", user);
         return user;
     }
 
     private void validateUser(User user) {
         String email = user.getEmail();
         if (email == null || email.isBlank() || !email.contains("@")) {
+            log.error("Ошибка при добавлении пользователя: некорректная почта - {}", email);
             throw new ValidateException("Некорректная электронная почта.");
         }
         String login = user.getLogin();
         if (login == null || login.isEmpty() || login.isBlank() || login.contains(" ")) {
+            log.error("Ошибка при добавлении пользователя: некорректный логин - {}", login);
             throw new ValidateException("Некорректный логин.");
         }
         String name = user.getName();
         if (name == null || name.isEmpty() || name.isBlank()) {
+            log.info("Пользователь использует логин - {} вместо имени", user.getLogin());
             user.setName(user.getLogin());
         }
         LocalDate birthday = user.getBirthday();
         if (birthday == null || birthday.isAfter(LocalDate.now())) {
+            log.error("Ошибка при добавлении пользователя: некоррктная дата рождения - {}", birthday);
             throw new ValidateException("Некорректная дата рождения.");
         }
-    }
-
-    private Integer getNextId() {
-        int currentMaxId = users.keySet()
-                .stream()
-                .mapToInt(id -> id)
-                .max()
-                .orElse(0);
-        return ++currentMaxId;
     }
 }
