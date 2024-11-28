@@ -20,6 +20,7 @@ public class UserController {
 
     @GetMapping
     public Collection<User> getUsers() {
+        log.info("Пришел запрос Get /users");
         Collection<User> resUsers = users.values();
         log.info("Отправлен ответ Get /users : {}", resUsers);
         return resUsers;
