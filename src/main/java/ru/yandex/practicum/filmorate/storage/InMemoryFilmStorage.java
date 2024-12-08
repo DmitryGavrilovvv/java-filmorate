@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.storage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidateException;
@@ -55,18 +56,18 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     private void validateFilm(Film film) {
         String name = film.getName();
-        validate(()->name == null || name.isEmpty() || name.isBlank(),"Название не может быть пустым.");
-        validate(()->film.getDescription().length() > 200,"Максимальная длина строки - 200 символов.");
-        validate(()->film.getDuration() < 1,"Продолжительность не может быть отрицательной.");
+        validate(() -> name == null || name.isEmpty() || name.isBlank(), "Название не может быть пустым.");
+        validate(() -> film.getDescription().length() > 200, "Максимальная длина строки - 200 символов.");
+        validate(() -> film.getDuration() < 1, "Продолжительность не может быть отрицательной.");
         LocalDate releaseDate = film.getReleaseDate();
-        validate(()->releaseDate == null,"Дата релиза не может быть пустой");
-        validate(()->releaseDate.isBefore(MOVIE_BIRTHDAY),
+        validate(() -> releaseDate == null, "Дата релиза не может быть пустой");
+        validate(() -> releaseDate.isBefore(MOVIE_BIRTHDAY),
                 "Релиз не может быть раньше 28 декабря 1985 года.");
     }
 
-    private void validate(Supplier<Boolean> supplier, String massage){
+    private void validate(Supplier<Boolean> supplier, String massage) {
         if (supplier.get()) {
-            log.error("Ошибка при валидации фильма: {}",massage);
+            log.error("Ошибка при валидации фильма: {}", massage);
             throw new ValidateException(massage);
         }
     }
