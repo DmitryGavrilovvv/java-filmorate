@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.function.Supplier;
 
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
@@ -54,25 +55,19 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     private void validateFilm(Film film) {
         String name = film.getName();
-        if (name == null || name.isEmpty() || name.isBlank()) {
-            log.error("Ошибка при добавлении фильма: введено пустое название");
-            throw new ValidateException("Название не может быть пустым.");
-        }
-        if (film.getDescription().length() > 200) {
-            log.error("Ошибка при добавлении фильма: превышена максимальная длина описания");
-            throw new ValidateException("Максимальная длина строки - 200 символов.");
-        }
-        if (film.getDuration() < 1) {
-            log.error("Ошибка при добавлении фильма: введена некорректная продолжительность - {}", film.getDuration());
-            throw new ValidateException("Продолжительность не может быть отрицательной.");
-        }
+        validate(()->name == null || name.isEmpty() || name.isBlank(),"Название не может быть пустым.");
+        validate(()->film.getDescription().length() > 200,"Максимальная длина строки - 200 символов.");
+        validate(()->film.getDuration() < 1,"Продолжительность не может быть отрицательной.");
         LocalDate releaseDate = film.getReleaseDate();
-        if (releaseDate == null) {
-            log.error("Ошибка при добавлении фильма: введена пустая дата релиза");
-            throw new ValidateException("Дата релиза не может быть пустой");
-        } else if (releaseDate.isBefore(MOVIE_BIRTHDAY)) {
-            log.error("Ошибка при добавлении фильма: введена дата релиза раньше 28 декабря 1985 года - {}", releaseDate);
-            throw new ValidateException("Релиз не может быть раньше 28 декабря 1985 года.");
+        validate(()->releaseDate == null,"Дата релиза не может быть пустой");
+        validate(()->releaseDate.isBefore(MOVIE_BIRTHDAY),
+                "Релиз не может быть раньше 28 декабря 1985 года.");
+    }
+
+    private void validate(Supplier<Boolean> supplier, String massage){
+        if (supplier.get()) {
+            log.error("Ошибка при валидации фильма: {}",massage);
+            throw new ValidateException(massage);
         }
     }
 }
