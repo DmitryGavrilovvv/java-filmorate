@@ -4,13 +4,18 @@ import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.exception.ValidateException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserControllerTest {
-    UserController us = new UserController();
+    UserStorage storage = new InMemoryUserStorage();
+    UserService service = new UserService(storage);
+    UserController us = new UserController(service,storage);
 
     @Test
     void checkEmail() {
@@ -30,7 +35,7 @@ public class UserControllerTest {
     void emptyName() {
         User user1 = new User("myemail@practicum.ru", "Itsme", " ", LocalDate.now().minusYears(20));
         us.addUser(user1);
-        assertEquals(user1.getLogin(), us.users.get(user1.getId()).getName());
+        assertEquals(user1.getLogin(), storage.getUserById(user1.getId()).get().getName());
     }
 
     @Test
