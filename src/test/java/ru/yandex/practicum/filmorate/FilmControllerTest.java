@@ -5,13 +5,20 @@ import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidateException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class FilmControllerTest {
-    FilmController fc = new FilmController();
+    FilmStorage fStorage = new InMemoryFilmStorage();
+    UserStorage uStorage = new InMemoryUserStorage();
+    FilmController fc = new FilmController(fStorage,new FilmService(fStorage,uStorage));
 
     @Test
     void durationZeroTest() {
