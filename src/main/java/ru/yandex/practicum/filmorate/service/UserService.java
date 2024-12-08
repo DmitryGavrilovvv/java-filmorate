@@ -55,9 +55,9 @@ public class UserService {
             log.error("Ошибка при получении общих друзей");
             throw new NotFoundException("Один из пользователей не найден");
         }
-        List<Integer> Ids = userOptional1.get().getAllFriends();
+        List<Integer> ids = userOptional1.get().getAllFriends();
         User user2 = userOptional2.get();
-        for (Integer id : Ids) {
+        for (Integer id : ids) {
             if (user2.getFriend(id).isPresent()) {
                 inMemoryUserStorage.getUserById(id).ifPresent(result::add);
             }
