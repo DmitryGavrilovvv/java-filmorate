@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class UserControllerTest {
     UserStorage storage = new InMemoryUserStorage();
     UserService service = new UserService(storage);
-    UserController us = new UserController(service,storage);
+    UserController us = new UserController(service);
 
     @Test
     void checkEmail() {

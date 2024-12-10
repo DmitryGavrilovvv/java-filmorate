@@ -1,6 +1,8 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Data;
+import lombok.NonNull;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -12,13 +14,19 @@ import java.util.Set;
 @Data
 public class Film implements Comparable<Film> {
     private int id;
+    @NonNull
     private String name;
+    @NonNull
     private String description;
+    @NonNull
     private LocalDate releaseDate;
     private int duration;
-    private final Set<Integer> likes;
+    @JsonIgnore
+    private Set<Integer> likes;
+    @JsonIgnore
+    private int rate = 0;
 
-    public Film(String name, String description, LocalDate releaseDate, int duration) {
+    public Film(@NonNull String name, @NonNull String description, @NonNull LocalDate releaseDate, int duration) {
         this.name = name;
         this.description = description;
         this.releaseDate = releaseDate;
@@ -27,21 +35,17 @@ public class Film implements Comparable<Film> {
     }
 
     public void addLike(Integer id) {
-        if (id == null) {
-            throw new NullPointerException("id не должен быть null");
-        }
         likes.add(id);
+        rate = likes.size();
     }
 
     public void removeLike(Integer id) {
-        if (id == null) {
-            throw new NullPointerException("id не должен быть null");
-        }
         likes.remove(id);
+        rate = likes.size();
     }
 
-    public int compareTo(Film obj) {
-        return obj.getLikes().size() - this.getLikes().size();
+    public int compareTo(@NonNull Film obj) {
+        return obj.getRate() - this.rate;
     }
 
 }

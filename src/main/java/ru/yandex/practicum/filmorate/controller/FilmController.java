@@ -4,50 +4,45 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 
 @RestController
 @RequestMapping("/films")
 public class FilmController {
-    private final FilmService filmService;
-    private final FilmStorage inMemoryFilmStorage;
     private static final Logger log = LoggerFactory.getLogger(FilmController.class);
+    private final FilmService filmService;
 
     @Autowired
-    public FilmController(FilmStorage inMemoryFilmStorage, FilmService filmService) {
-        this.inMemoryFilmStorage = inMemoryFilmStorage;
+    public FilmController(FilmService filmService) {
         this.filmService = filmService;
     }
 
     @GetMapping
     public Collection<Film> getFilms() {
         log.info("Пришел запрос Get /films");
-        Collection<Film> resFilms = inMemoryFilmStorage.findAll();
+        Collection<Film> resFilms = filmService.findAll();
         log.info("Отправлен ответ Get /films : {}", resFilms);
         return resFilms;
     }
 
     @PostMapping
-    public Film addFilm(@RequestBody Film film) {
-        log.info("пришел Post запрос /films с фильмом: {}", film);
-        inMemoryFilmStorage.create(film);
+    public Film addFilm(@RequestBody Film newFilm) {
+        log.info("пришел Post запрос /films с фильмом: {}", newFilm);
+        Film film = filmService.create(newFilm);
         log.info("Отправлен ответ Post /films с фильмом: {}", film);
         return film;
     }
 
     @PutMapping
-    public Film updateFilm(@RequestBody Film film) {
-        log.info("пришел Put запрос /films с фильмом: {}", film);
-        inMemoryFilmStorage.update(film);
+    public Film updateFilm(@RequestBody Film newFilm) {
+        log.info("пришел Put запрос /films с фильмом: {}", newFilm);
+        Film film = filmService.update(newFilm);
         log.info("Отправлен ответ Put /films с фильмом: {}", film);
         return film;
     }
@@ -77,11 +72,9 @@ public class FilmController {
     @GetMapping("/{filmId}")
     public Film getFilmById(@PathVariable Integer filmId) {
         log.info("Пришел запрос Get /films/{filmId}");
-        Optional<Film> film0 = inMemoryFilmStorage.getFilmById(filmId);
+        Film film = filmService.getFilmById(filmId);
         log.info("Пришел запрос Get /films/{filmId}");
-        if (film0.isPresent()) {
-            return film0.get();
-        } else throw new NotFoundException("Фильм с " + filmId + " отсутствует.");
+        return film;
     }
 
 

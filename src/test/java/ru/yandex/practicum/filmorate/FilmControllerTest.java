@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class FilmControllerTest {
     FilmStorage fStorage = new InMemoryFilmStorage();
     UserStorage uStorage = new InMemoryUserStorage();
-    FilmController fc = new FilmController(fStorage,new FilmService(fStorage,uStorage));
+    FilmController fc = new FilmController(new FilmService(fStorage,uStorage));
 
     @Test
     void durationZeroTest() {
@@ -30,12 +30,6 @@ public class FilmControllerTest {
     @Test
     void emptyName() {
         Film film1 = new Film(" ", "Descr", LocalDate.now(), 20);
-        assertThrows(ValidateException.class, () -> fc.addFilm(film1));
-    }
-
-    @Test
-    void nullName() {
-        Film film1 = new Film(null, "Descr", LocalDate.now(), 20);
         assertThrows(ValidateException.class, () -> fc.addFilm(film1));
     }
 

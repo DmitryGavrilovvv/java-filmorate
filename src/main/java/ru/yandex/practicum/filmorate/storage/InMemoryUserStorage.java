@@ -5,10 +5,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidateException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.time.LocalDate;
 import java.util.*;
 
 @Component
@@ -24,7 +22,6 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User create(User user) {
-        validateUser(user);
         user.setId(++idGenerator);
         users.put(user.getId(), user);
         return user;
@@ -32,7 +29,6 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User update(User newUser) {
-        validateUser(newUser);
         User oldUser = users.get(newUser.getId());
         if (oldUser == null) {
             log.error("Пользователь с id {} не найден", newUser.getId());
@@ -69,28 +65,5 @@ public class InMemoryUserStorage implements UserStorage {
         }
         log.error("Ошибка при получении списка юзеров");
         return Optional.empty();
-    }
-
-    private void validateUser(User user) {
-        String email = user.getEmail();
-        if (email == null || email.isBlank() || !email.contains("@")) {
-            log.error("Ошибка при добавлении пользователя: некорректная почта - {}", email);
-            throw new ValidateException("Некорректная электронная почта.");
-        }
-        String login = user.getLogin();
-        if (login == null || login.isEmpty() || login.isBlank() || login.contains(" ")) {
-            log.error("Ошибка при добавлении пользователя: некорректный логин - {}", login);
-            throw new ValidateException("Некорректный логин.");
-        }
-        String name = user.getName();
-        if (name == null || name.isEmpty() || name.isBlank()) {
-            log.info("Пользователь использует логин - {} вместо имени", user.getLogin());
-            user.setName(user.getLogin());
-        }
-        LocalDate birthday = user.getBirthday();
-        if (birthday == null || birthday.isAfter(LocalDate.now())) {
-            log.error("Ошибка при добавлении пользователя: некоррктная дата рождения - {}", birthday);
-            throw new ValidateException("Некорректная дата рождения.");
-        }
     }
 }

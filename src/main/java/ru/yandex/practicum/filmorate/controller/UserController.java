@@ -5,46 +5,45 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    private final UserService userService;
-    private final UserStorage inMemoryUserStorage;
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
+    private final UserService userService;
 
     @Autowired
-    public UserController(UserService userService, UserStorage inMemoryUserStorage) {
+    public UserController(UserService userService) {
         this.userService = userService;
-        this.inMemoryUserStorage = inMemoryUserStorage;
     }
 
     @GetMapping
     public Collection<User> getUsers() {
         log.info("Пришел запрос Get /users");
-        Collection<User> resUsers = inMemoryUserStorage.findAll();
+        Collection<User> resUsers = userService.findAll();
         log.info("Отправлен ответ Get /users : {}", resUsers);
         return resUsers;
     }
 
     @PostMapping
-    public User addUser(@RequestBody User user) {
-        log.info("пришел Post запрос /users с пользователем: {}", user);
-        inMemoryUserStorage.create(user);
+    public User addUser(@RequestBody User newUser) {
+        log.info("пришел Post запрос /users с пользователем: {}", newUser);
+        User user = userService.create(newUser);
         log.info("Отправлен ответ Post /users с пользователем: {}", user);
         return user;
     }
 
     @PutMapping
-    public User updateUser(@RequestBody User user) {
-        log.info("пришел Put запрос /users с пользователем: {}", user);
-        inMemoryUserStorage.update(user);
+    public User updateUser(@RequestBody User newUser) {
+        log.info("пришел Put запрос /users с пользователем: {}", newUser);
+        User user = userService.update(newUser);
         log.info("Отправлен ответ Put /users с пользователем: {}", user);
         return user;
     }
@@ -66,7 +65,7 @@ public class UserController {
     @GetMapping("/{id}/friends")
     public List<User> getFriends(@PathVariable Integer id) {
         log.info("Пришел запрос Get /users/{id}/friends с id пользователя {}", id);
-        Optional<List<User>> friendsList = inMemoryUserStorage.getFriends(id);
+        Optional<List<User>> friendsList = userService.getFriends(id);
         log.info("Отправлен ответ Get /users/{id}/friends с id пользователя {}", id);
         return friendsList.orElse(Collections.emptyList());
     }
@@ -82,11 +81,9 @@ public class UserController {
     @GetMapping("/{userId}")
     public User getUserById(@PathVariable Integer userId) {
         log.info("Пришел запрос Get /users/{userId} с id пользователя {}", userId);
-        Optional<User> user = inMemoryUserStorage.getUserById(userId);
+        User user = userService.getUserById(userId);
         log.info("Отправлен ответ Get /users/{userId} с id пользователя {}", userId);
-        if (user.isPresent()) {
-            return user.get();
-        } else throw new NotFoundException("Юзер с " + userId + " отсутствует.");
+        return user;
     }
 
 

@@ -1,21 +1,33 @@
 package ru.yandex.practicum.filmorate.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import lombok.NonNull;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 
 @Data
 public class User {
     private int id;
+    @NonNull
     private String email;
+    @NonNull
     private String login;
+    @NonNull
     private String name;
+    @NonNull
     private LocalDate birthday;
-    private final Set<Integer> friends;
+    @JsonIgnore
+    private Set<Integer> friends;
+    @JsonIgnore
+    private int rate = 0;
 
-    public User(String email, String login, String name, LocalDate birthday) {
+    public User(@NonNull String email, @NonNull String login, @NonNull String name, @NonNull LocalDate birthday) {
         this.email = email;
         this.login = login;
         this.name = name;
@@ -24,24 +36,16 @@ public class User {
     }
 
     public void addFriend(Integer id) {
-        if (id == null) {
-            throw new NullPointerException("id не должен быть null");
-        }
         friends.add(id);
+        rate = friends.size();
     }
 
     public void removeFriend(Integer id) {
-        if (id == null) {
-            throw new NullPointerException("id не должен быть null");
-        }
         friends.remove(id);
+        rate = friends.size();
     }
 
     public Optional<Integer> getFriend(Integer id) {
-        if (id == null) {
-            throw new NullPointerException("id не должен быть null");
-        }
-
         if (!friends.contains(id)) {
             return Optional.empty();
         }
