@@ -18,7 +18,6 @@ public class User {
     private String email;
     @NonNull
     private String login;
-    @NonNull
     private String name;
     @NonNull
     private LocalDate birthday;
@@ -27,7 +26,7 @@ public class User {
     @JsonIgnore
     private int rate = 0;
 
-    public User(@NonNull String email, @NonNull String login, @NonNull String name, @NonNull LocalDate birthday) {
+    public User(@NonNull String email, @NonNull String login, String name, @NonNull LocalDate birthday) {
         this.email = email;
         this.login = login;
         this.name = name;

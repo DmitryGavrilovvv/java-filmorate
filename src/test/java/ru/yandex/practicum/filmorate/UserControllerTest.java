@@ -60,4 +60,12 @@ public class UserControllerTest {
 
         assertThrows(ValidateException.class, () -> us.addUser(user1));
     }
+
+    @Test
+    void testChangingUserWithEmptyName() {
+        User user = new User("myemail@practicum.ru", "Itsme1", null, LocalDate.now());
+        us.addUser(user);
+
+        assertEquals(user.getName(), user.getLogin());
+    }
 }

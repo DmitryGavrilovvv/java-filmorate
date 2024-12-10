@@ -109,7 +109,7 @@ public class UserService {
             throw new ValidateException("Некорректный логин.");
         }
         String name = user.getName();
-        if (name.isEmpty() || name.isBlank()) {
+        if (name == null || name.isEmpty() || name.isBlank()) {
             log.info("Пользователь использует логин - {} вместо имени", user.getLogin());
             user.setName(user.getLogin());
         }
