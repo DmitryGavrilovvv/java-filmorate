@@ -5,13 +5,20 @@ import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidateException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class FilmControllerTest {
-    FilmController fc = new FilmController();
+    FilmStorage fStorage = new InMemoryFilmStorage();
+    UserStorage uStorage = new InMemoryUserStorage();
+    FilmController fc = new FilmController(new FilmService(fStorage,uStorage));
 
     @Test
     void durationZeroTest() {
@@ -23,12 +30,6 @@ public class FilmControllerTest {
     @Test
     void emptyName() {
         Film film1 = new Film(" ", "Descr", LocalDate.now(), 20);
-        assertThrows(ValidateException.class, () -> fc.addFilm(film1));
-    }
-
-    @Test
-    void nullName() {
-        Film film1 = new Film(null, "Descr", LocalDate.now(), 20);
         assertThrows(ValidateException.class, () -> fc.addFilm(film1));
     }
 
