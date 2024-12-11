@@ -1,78 +1,81 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidateException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
-import java.time.LocalDate;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+import java.util.Objects;
 
 
-@Slf4j
 @RestController
 @RequestMapping("/films")
 public class FilmController {
-    private static final LocalDate MOVIE_BIRTHDAY = LocalDate.of(1895, 12, 28);
-    private final Map<Integer, Film> films = new HashMap<>();
-    private int idGenerator = 0;
+    private static final Logger log = LoggerFactory.getLogger(FilmController.class);
+    private final FilmService filmService;
+
+    @Autowired
+    public FilmController(FilmService filmService) {
+        this.filmService = filmService;
+    }
 
     @GetMapping
     public Collection<Film> getFilms() {
         log.info("Пришел запрос Get /films");
-        Collection<Film> resFilms = films.values();
+        Collection<Film> resFilms = filmService.findAll();
         log.info("Отправлен ответ Get /films : {}", resFilms);
         return resFilms;
     }
 
     @PostMapping
-    public Film addFilm(@RequestBody Film film) {
-        log.info("пришел Post запрос /films с фильмом: {}", film);
-        validateFilm(film);
-        film.setId(++idGenerator);
-        films.put(film.getId(), film);
+    public Film addFilm(@RequestBody Film newFilm) {
+        log.info("пришел Post запрос /films с фильмом: {}", newFilm);
+        Film film = filmService.create(newFilm);
         log.info("Отправлен ответ Post /films с фильмом: {}", film);
         return film;
     }
 
     @PutMapping
-    public Film updateFilm(@RequestBody Film film) {
-        log.info("пришел Put запрос /films с фильмом: {}", film);
-        validateFilm(film);
-        Film oldFilm = films.get(film.getId());
-        if (oldFilm == null) {
-            log.error("Фильм с id {} не найден", film.getId());
-            throw new NotFoundException("Фильм не найден");
-        }
-        films.put(film.getId(), film);
+    public Film updateFilm(@RequestBody Film newFilm) {
+        log.info("пришел Put запрос /films с фильмом: {}", newFilm);
+        Film film = filmService.update(newFilm);
         log.info("Отправлен ответ Put /films с фильмом: {}", film);
         return film;
     }
 
-    private void validateFilm(Film film) {
-        String name = film.getName();
-        if (name == null || name.isEmpty() || name.isBlank()) {
-            log.error("Ошибка при добавлении фильма: введено пустое название");
-            throw new ValidateException("Название не может быть пустым.");
-        }
-        if (film.getDescription().length() > 200) {
-            log.error("Ошибка при добавлении фильма: превышена максимальная длина описания");
-            throw new ValidateException("Максимальная длина строки - 200 символов.");
-        }
-        if (film.getDuration() < 1) {
-            log.error("Ошибка при добавлении фильма: введена некорректная продолжительность - {}", film.getDuration());
-            throw new ValidateException("Продолжительность не может быть отрицательной.");
-        }
-        LocalDate releaseDate = film.getReleaseDate();
-        if (releaseDate == null) {
-            log.error("Ошибка при добавлении фильма: введена пустая дата релиза");
-            throw new ValidateException("Дата релиза не может быть пустой");
-        } else if (releaseDate.isBefore(MOVIE_BIRTHDAY)) {
-            log.error("Ошибка при добавлении фильма: введена дата релиза раньше 28 декабря 1985 года - {}", releaseDate);
-            throw new ValidateException("Релиз не может быть раньше 28 декабря 1985 года.");
-        }
+    @PutMapping("/{filmId}/like/{userId}")
+    public void addLike(@PathVariable Integer userId, @PathVariable Integer filmId) {
+        log.info("пришел Put запрос /films/{id}/like/{userId} с id пользователя {}, и id фильма {}", userId, filmId);
+        filmService.addLike(userId, filmId);
+        log.info("отправлен ответ Put /films/{id}/like/{userId} с id пользователя {}, и id фильма {}", userId, filmId);
     }
+
+    @DeleteMapping("/{filmId}/like/{userId}")
+    public void removeLike(@PathVariable Integer userId, @PathVariable Integer filmId) {
+        log.info("пришел Delete запрос /films/{id}/like/{userId} с id пользователя {}, и id фильма {}", userId, filmId);
+        filmService.removeLike(userId, filmId);
+        log.info("отправлен ответ Delete /films/{id}/like/{userId} с id пользователя {}, и id фильма {}", userId, filmId);
+    }
+
+    @GetMapping("/popular")
+    public List<Film> getMostPopularFilms(@RequestParam(required = false) Integer count) {
+        log.info("Пришел запрос Get /films/popular");
+        List<Film> films = filmService.getBestFilms(Objects.requireNonNullElse(count, 10));
+        log.info("Отправлен ответ Get /films/popular");
+        return films;
+    }
+
+    @GetMapping("/{filmId}")
+    public Film getFilmById(@PathVariable Integer filmId) {
+        log.info("Пришел запрос Get /films/{filmId}");
+        Film film = filmService.getFilmById(filmId);
+        log.info("Пришел запрос Get /films/{filmId}");
+        return film;
+    }
+
+
 }
