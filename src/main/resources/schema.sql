@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS films (
     description VARCHAR,
     release_date DATE,
     duration INTEGER,
-    rating_id INTEGER REFERENCES Ratings(rating_id)
+    rating_id INTEGER REFERENCES MpaRatings(mpa_id)
 );
 
 CREATE TABLE IF NOT EXISTS genres (
