@@ -1,10 +1,10 @@
 package ru.yandex.practicum.filmorate.dal;
 
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.mappers.GenreRowMapper;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidateException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
@@ -12,6 +12,7 @@ import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.sql.Date;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Repository
 public class FilmRepository extends BaseRepository<Film> implements FilmStorage {
@@ -27,7 +28,6 @@ public class FilmRepository extends BaseRepository<Film> implements FilmStorage 
             "WHERE fg.film_id = ?";
     private static final String INSERT_QUERY = "INSERT INTO films(name,description,release_date,duration,mpa_id) " +
             "VALUES(?,?,?,?,?)";
-    private static final String INSERT_GENRES_QUERY = "INSERT INTO FilmsGenres (film_id, genre_id) VALUES (?, ?)";
     private static final String UPDATE_QUERY = "UPDATE films SET name = ?, description = ?, release_date = ?, " +
             "duration = ?, mpa_id = ? WHERE film_id = ?";
     private static final String DELETE_QUERY = "DELETE FROM films WHERE film_id = ?";
@@ -51,9 +51,6 @@ public class FilmRepository extends BaseRepository<Film> implements FilmStorage 
         if (film.getMpa() != null) {
             mpaId = film.getMpa().getId();
         }
-        if (film.getGenres() != null && !film.getGenres().isEmpty()) {
-            validateGenresExist(film.getGenres());
-        }
         int id = insert(
                 INSERT_QUERY,
                 film.getName(),
@@ -64,9 +61,19 @@ public class FilmRepository extends BaseRepository<Film> implements FilmStorage 
         film.setId(id);
 
         if (film.getGenres() != null && !film.getGenres().isEmpty()) {
+            validateGenresExist(film.getGenres());
+
+            String insertGenresSql = "INSERT INTO FilmsGenres (film_id, genre_id) VALUES (?, ?)";
+            Set<Integer> uniqueGenreIds = new HashSet<>();
+            List<Object[]> batchArgs = new ArrayList<>();
+
             for (Genre genre : film.getGenres()) {
-                jdbc.update(INSERT_GENRES_QUERY, film.getId(), genre.getId());
+                if (uniqueGenreIds.add(genre.getId())) {
+                    batchArgs.add(new Object[]{film.getId(), genre.getId()});
+                }
             }
+
+            jdbc.batchUpdate(insertGenresSql, batchArgs);
         }
         if (film.getLikes() == null) {
             film.setLikes(new HashSet<>());
@@ -79,6 +86,9 @@ public class FilmRepository extends BaseRepository<Film> implements FilmStorage 
 
     @Override
     public Film update(Film newFilm) {
+        if (!filmExists(newFilm.getId())) {
+            throw new NotFoundException("Фильм с ID " + newFilm.getId() + " не найден");
+        }
         int mpaId = newFilm.getMpa().getId();
         update(
                 UPDATE_QUERY,
@@ -110,13 +120,22 @@ public class FilmRepository extends BaseRepository<Film> implements FilmStorage 
     }
 
     private void validateGenresExist(Collection<Genre> genres) {
-        String sqlQuery = "SELECT * FROM Genres WHERE genre_id = ?";
-        for (Genre genre : genres) {
-            try {
-                Genre genre1 = jdbc.queryForObject(sqlQuery, new GenreRowMapper(), genre.getId());
-            } catch (EmptyResultDataAccessException ignored) {
-                throw new ValidateException("Некоторые жанры не существуют: " + genre.getId());
-            }
+        Set<Integer> genreIds = genres.stream().map(Genre::getId).collect(Collectors.toSet());
+        String sqlQuery = String.format("SELECT genre_id FROM Genres WHERE genre_id IN (%s)",
+                genreIds.stream().map(String::valueOf).collect(Collectors.joining(", ")));
+
+        List<Long> existingIds = jdbc.query(sqlQuery, (rs, rowNum) -> rs.getLong("genre_id"));
+
+        if (existingIds.size() != genreIds.size()) {
+            genreIds.removeAll(existingIds);
+            throw new ValidateException("Некоторые жанры не существуют: " + genreIds);
         }
+
+    }
+
+    private boolean filmExists(Integer filmId) {
+        String sqlQuery = "SELECT COUNT(*) FROM Films WHERE film_id = ?";
+        Integer count = jdbc.queryForObject(sqlQuery, Integer.class, filmId);
+        return count != null && count > 0;
     }
 }

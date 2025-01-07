@@ -50,6 +50,13 @@ public class UserController {
         return user;
     }
 
+    @DeleteMapping("/{id}")
+    public void removeUser(@PathVariable Integer id) {
+        log.info("пришел Delete запрос /users/{id} с id пользователя: {}", id);
+        userService.removeUser(id);
+        log.info("отправлен Delete ответ /users/{id} с id пользователя: {}", id);
+    }
+
     @PutMapping("/{id}/friends/{friendId}")
     public void addFriend(@PathVariable Integer id, @PathVariable Integer friendId) {
         log.info("пришел Put запрос /users с id пользователей: {},{}", id, friendId);
@@ -59,10 +66,11 @@ public class UserController {
 
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping("/{id}/friends/{friendId}")
-    public void removeFriend(@PathVariable Integer id, @PathVariable Integer friendId) {
-        log.info("пришел Delete запрос /users с id пользователей: {},{}", id, friendId);
-        userService.removeFriend(id, friendId);
-        log.info("Отправлен Delete Put /users с id пользователей: {},{}", id, friendId);
+    public UserDto removeFriend(@PathVariable Integer id, @PathVariable Integer friendId) {
+        log.info("пришел Delete запрос /users/{id}/friends/{friendId} с id пользователей: {},{}", id, friendId);
+        UserDto userDto = userService.removeFriend(id, friendId);
+        log.info("Отправлен Delete Put /users/{id}/friends/{friendId} с id пользователей: {},{}", id, friendId);
+        return userDto;
     }
 
     @ResponseStatus(HttpStatus.OK)
@@ -91,12 +99,10 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    public UserDto getUserById(@PathVariable Integer userId) {
+    public UserDto getUser(@PathVariable Integer userId) {
         log.info("Пришел запрос Get /users/{userId} с id пользователя {}", userId);
         UserDto user = userService.getUserById(userId);
         log.info("Отправлен ответ Get /users/{userId} с id пользователя {}", userId);
         return user;
     }
-
-
 }

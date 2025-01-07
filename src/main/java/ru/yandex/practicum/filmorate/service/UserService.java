@@ -47,6 +47,10 @@ public class UserService {
         return UserMapper.mapToUserDto(user);
     }
 
+    public void removeUser(Integer id) {
+        us.delete(id);
+    }
+
     public UserDto update(Integer id, UpdateUserRequest request) {
         User updateUser = us.getUserById(id)
                 .map(user -> UserMapper.updateUserFields(user, request))
@@ -63,6 +67,7 @@ public class UserService {
     }
 
     public Optional<List<UserDto>> getFriends(Integer id) {
+        UserDto user = getUserById(id);
         List<UserDto> result = fss.getFriends(id)
                 .stream()
                 .filter(Objects::nonNull)
@@ -74,7 +79,7 @@ public class UserService {
     public UserDto getFriendById(Integer userId, Integer friendId) {
         return fss.getFriendById(userId, friendId)
                 .map(UserMapper::mapToUserDto)
-                .orElseThrow(() -> new NotFoundException("Друг не найден"));
+                .orElseThrow(() -> new NotFoundException("У пользователя нет такого друга"));
     }
 
     public void addFriend(Integer userId1, Integer userId2) {
@@ -92,7 +97,7 @@ public class UserService {
         log.info("Пользователи добавлены в друзья");
     }
 
-    public void removeFriend(Integer userId1, Integer userId2) {
+    public UserDto removeFriend(Integer userId1, Integer userId2) {
         Optional<User> userOptional1 = us.getUserById(userId1);
         Optional<User> userOptional2 = us.getUserById(userId2);
         if (userOptional1.isEmpty() || userOptional2.isEmpty()) {
@@ -101,6 +106,7 @@ public class UserService {
         }
         fss.deleteFriend(userId1, userId2);
         log.info("Пользователи удалены из друзей");
+        return getUserById(userId1);
     }
 
     public Collection<UserDto> getMutualFriends(Integer userId1, Integer userId2) {

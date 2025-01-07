@@ -33,8 +33,8 @@ public class FriendshipRepository extends BaseRepository<User> implements Friend
     }
 
     @Override
-    public boolean deleteFriend(int userId, int friendId) {
-        return jdbc.update(DELETE_QUERY, userId, friendId) > 0;
+    public void deleteFriend(int userId, int friendId) {
+        jdbc.update(DELETE_QUERY, userId, friendId);
     }
 
     @Override
