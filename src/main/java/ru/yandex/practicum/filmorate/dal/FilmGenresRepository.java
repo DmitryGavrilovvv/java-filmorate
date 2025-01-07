@@ -20,7 +20,7 @@ public class FilmGenresRepository extends BaseRepository<Integer> implements Fil
 
     @Override
     public Integer create(int filmId, int genreId) {
-        return insert(INSERT_QUERY, filmId, genreId);
+        return jdbc.update(INSERT_QUERY, filmId, genreId);
     }
 
     @Override
