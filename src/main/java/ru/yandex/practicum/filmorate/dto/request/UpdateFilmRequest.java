@@ -4,6 +4,7 @@ import lombok.Data;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 public class UpdateFilmRequest {
@@ -13,6 +14,7 @@ public class UpdateFilmRequest {
     private LocalDate releaseDate;
     private int duration;
     private Mpa mpa;
+    private List<NewGenreRequest> genres;
 
     public boolean hasName() {
         return name != null;

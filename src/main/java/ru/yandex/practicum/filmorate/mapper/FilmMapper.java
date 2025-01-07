@@ -15,7 +15,14 @@ public final class FilmMapper {
         film.setDescription(request.getDescription());
         film.setReleaseDate(request.getReleaseDate());
         film.setDuration(request.getDuration());
-        film.setMpa(request.getMpa());
+        if (request.getMpa() != null) {
+            film.setMpa(request.getMpa());
+        }
+        if (request.getGenres() != null && !request.getGenres().isEmpty()) {
+            film.setGenres(request.getGenres().stream()
+                    .map(GenreMapper::mapToGenre)
+                    .toList());
+        }
         return film;
     }
 
@@ -26,7 +33,14 @@ public final class FilmMapper {
         dto.setDescription(film.getDescription());
         dto.setReleaseDate(film.getReleaseDate());
         dto.setDuration(film.getDuration());
-        dto.setMpa(film.getMpa());
+        if (film.getMpa() != null) {
+            dto.setMpa(film.getMpa());
+        }
+        if (film.getGenres() != null && !film.getGenres().isEmpty()) {
+            dto.setGenres(film.getGenres().stream()
+                    .map(GenreMapper::mapToGenreDto)
+                    .toList());
+        }
         return dto;
     }
 
@@ -49,6 +63,12 @@ public final class FilmMapper {
 
         if (request.hasMpa()) {
             film.setMpa(request.getMpa());
+        }
+
+        if (request.getGenres() != null && !request.getGenres().isEmpty()) {
+            film.setGenres(request.getGenres().stream()
+                    .map(GenreMapper::mapToGenre)
+                    .toList());
         }
 
         return film;

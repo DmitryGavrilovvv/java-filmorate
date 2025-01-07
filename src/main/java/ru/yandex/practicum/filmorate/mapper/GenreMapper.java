@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 public final class GenreMapper {
     public static Genre mapToGenre(NewGenreRequest request) {
         Genre genre = new Genre();
+        genre.setId(request.getId());
         genre.setName(request.getName());
         return genre;
     }

@@ -32,6 +32,7 @@ public class FilmService {
     private final LikeStorage ls;
     private final UserStorage us;
 
+
     @Autowired
     public FilmService(FilmRepository filmRepository, LikeRepository likeRepository, UserRepository userRepository) {
         this.fs = filmRepository;
@@ -97,7 +98,7 @@ public class FilmService {
     }
 
     public List<FilmDto> getBestFilms(Integer count) {
-        List<Film> allFilms = fs.findAll();
+        List<Film> allFilms = ls.findBestFilms(count);
         return allFilms.stream()
                 .map(FilmMapper::mapToFilmDto)
                 .toList();

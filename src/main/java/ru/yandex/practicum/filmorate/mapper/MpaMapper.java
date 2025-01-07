@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 public final class MpaMapper {
     public static Mpa mapToMpa(NewMpaRequest request) {
         Mpa mpa = new Mpa();
+        mpa.setId(request.getId());
         mpa.setName(request.getName());
         return mpa;
     }

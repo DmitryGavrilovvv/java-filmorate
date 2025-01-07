@@ -11,10 +11,10 @@ import java.util.Optional;
 
 @Repository
 public class MpaRepository extends BaseRepository<Mpa> implements RatingStorage {
-    private static final String FIND_ALL_QUERY = "SELECT * FROM ratings";
-    private static final String FIND_BY_ID_QUERY = "SELECT * FROM ratings WHERE rating_id = ?";
-    private static final String INSERT_QUERY = "INSERT INTO ratings(name) VALUES (?)";
-    private static final String DELETE_QUERY = "DELETE FROM ratings WHERE rating_id = ?";
+    private static final String FIND_ALL_QUERY = "SELECT * FROM MpaRatings";
+    private static final String FIND_BY_ID_QUERY = "SELECT * FROM MpaRatings WHERE mpa_id = ?";
+    private static final String INSERT_QUERY = "INSERT INTO MpaRatings(name) VALUES (?)";
+    private static final String DELETE_QUERY = "DELETE FROM MpaRatings WHERE mpa_id = ?";
 
     public MpaRepository(JdbcTemplate jdbc, RowMapper<Mpa> mapper) {
         super(jdbc, mapper);

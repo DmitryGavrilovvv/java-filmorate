@@ -9,6 +9,7 @@ import lombok.Data;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 public class FilmDto {
@@ -27,4 +28,5 @@ public class FilmDto {
     @Positive(message = "Продолжительность фильма должна быть положительной")
     private int duration;
     private Mpa mpa;
+    private List<GenreDto> genres;
 }

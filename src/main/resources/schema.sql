@@ -2,7 +2,6 @@ DROP TABLE IF EXISTS likes;
 DROP TABLE IF EXISTS friends;
 DROP TABLE IF EXISTS filmsgenres;
 DROP TABLE IF EXISTS films;
-DROP TABLE IF EXISTS ratings;
 DROP TABLE IF EXISTS MpaRatings;
 DROP TABLE IF EXISTS genres;
 DROP TABLE IF EXISTS users;
@@ -26,7 +25,7 @@ CREATE TABLE IF NOT EXISTS films (
     description VARCHAR,
     release_date DATE,
     duration INTEGER,
-    rating_id INTEGER REFERENCES MpaRatings(mpa_id)
+    mpa_id INTEGER REFERENCES MpaRatings(mpa_id)
 );
 
 CREATE TABLE IF NOT EXISTS genres (

@@ -10,7 +10,9 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -37,7 +39,7 @@ public class Film implements Comparable<Film> {
     @JsonIgnore
     private int rateLikes = 0;
     @JsonIgnore
-    private Set<Genre> genres;
+    private List<Genre> genres;
     @JsonIgnore
     private int rateGenres = 0;
 
@@ -48,7 +50,7 @@ public class Film implements Comparable<Film> {
         this.duration = duration;
         this.mpa = mpa;
         likes = new HashSet<>();
-        genres = new HashSet<>();
+        genres = new ArrayList<>();
     }
 
     public void addLike(Integer id) {

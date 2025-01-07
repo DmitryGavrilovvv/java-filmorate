@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.dto.MpaDto;
 import ru.yandex.practicum.filmorate.dto.request.NewMpaRequest;
@@ -12,7 +11,7 @@ import ru.yandex.practicum.filmorate.service.MpaService;
 
 import java.util.List;
 
-@Controller
+@RestController
 @RequestMapping("/mpa")
 public class MpaController {
     private static final Logger log = LoggerFactory.getLogger(MpaController.class);

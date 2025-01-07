@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 public class MpaDto {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private int id;
+    private Integer id;
     @NotBlank(message = "Название MPA не может быть пустым")
     private String name;
 }
