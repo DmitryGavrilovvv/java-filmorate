@@ -4,97 +4,121 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dal.FriendshipRepository;
+import ru.yandex.practicum.filmorate.dal.UserRepository;
+import ru.yandex.practicum.filmorate.dto.UserDto;
+import ru.yandex.practicum.filmorate.dto.request.NewUserRequest;
+import ru.yandex.practicum.filmorate.dto.request.UpdateUserRequest;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidateException;
+import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.storage.user.friendship.FriendshipStorage;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
 public class UserService {
-    private final UserStorage inMemoryUserStorage;
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
+    private final UserStorage us;
+    private final FriendshipStorage fss;
 
     @Autowired
-    public UserService(UserStorage inMemoryUserStorage) {
-        this.inMemoryUserStorage = inMemoryUserStorage;
+    public UserService(UserRepository userRepository, FriendshipRepository friendshipRepository) {
+        this.fss = friendshipRepository;
+        this.us = userRepository;
     }
 
-    public List<User> findAll() {
-        return inMemoryUserStorage.findAll();
+    public List<UserDto> findAll() {
+        return us.findAll().stream()
+                .map(UserMapper::mapToUserDto)
+                .toList();
     }
 
-    public User create(User user) {
+    public UserDto create(NewUserRequest request) {
+        User user = UserMapper.mapToUser(request);
         validateUser(user);
-        return inMemoryUserStorage.create(user);
+        user = us.create(user);
+        return UserMapper.mapToUserDto(user);
     }
 
-    public User update(User user) {
-        validateUser(user);
-        return inMemoryUserStorage.update(user);
+    public UserDto update(Integer id, UpdateUserRequest request) {
+        User updateUser = us.getUserById(id)
+                .map(user -> UserMapper.updateUserFields(user, request))
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+        validateUser(updateUser);
+        us.update(updateUser);
+        return UserMapper.mapToUserDto(updateUser);
     }
 
-    public User getUserById(Integer id) {
-        Optional<User> user = inMemoryUserStorage.getUserById(id);
-        if (user.isPresent()) {
-            return user.get();
-        } else throw new NotFoundException("Юзер с " + id + " отсутствует.");
+    public UserDto getUserById(Integer id) {
+        return us.getUserById(id)
+                .map(UserMapper::mapToUserDto)
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден с ID:" + id));
     }
 
-    public Optional<List<User>> getFriends(Integer id) {
-        return inMemoryUserStorage.getFriends(id);
+    public Optional<List<UserDto>> getFriends(Integer id) {
+        List<UserDto> result = fss.getFriends(id)
+                .stream()
+                .filter(Objects::nonNull)
+                .map(UserMapper::mapToUserDto)
+                .toList();
+        return Optional.of(result);
+    }
+
+    public UserDto getFriendById(Integer userId, Integer friendId) {
+        return fss.getFriendById(userId, friendId)
+                .map(UserMapper::mapToUserDto)
+                .orElseThrow(() -> new NotFoundException("Друг не найден"));
     }
 
     public void addFriend(Integer userId1, Integer userId2) {
-        Optional<User> user1 = inMemoryUserStorage.getUserById(userId1);
-        Optional<User> user2 = inMemoryUserStorage.getUserById(userId2);
+        if (Objects.equals(userId1, userId2)) {
+            log.error("Нельзя добавить в друзья самого себя");
+            throw new ValidateException("Нельзя добавить в друзья самого себя");
+        }
+        Optional<User> user1 = us.getUserById(userId1);
+        Optional<User> user2 = us.getUserById(userId2);
         if (user1.isEmpty() || user2.isEmpty()) {
             log.error("Ошибка при добавлении друзей: один из пользователей не найден. {}, {}", userId2, userId1);
             throw new NotFoundException("Один из пользователей не найден");
         }
-        user1.get().addFriend(userId2);
-        user2.get().addFriend(userId1);
+        fss.addFriend(userId1, userId2);
         log.info("Пользователи добавлены в друзья");
     }
 
     public void removeFriend(Integer userId1, Integer userId2) {
-        Optional<User> userOptional1 = inMemoryUserStorage.getUserById(userId1);
-        Optional<User> userOptional2 = inMemoryUserStorage.getUserById(userId2);
+        Optional<User> userOptional1 = us.getUserById(userId1);
+        Optional<User> userOptional2 = us.getUserById(userId2);
         if (userOptional1.isEmpty() || userOptional2.isEmpty()) {
             log.error("Ошибка при удалении друзей: один из пользователей не найден. {}, {}", userId2, userId1);
             throw new NotFoundException("Один из пользователей не найден");
         }
-        userOptional1.get().removeFriend(userId2);
-        userOptional2.get().removeFriend(userId1);
+        fss.deleteFriend(userId1, userId2);
         log.info("Пользователи удалены из друзей");
     }
 
-    public Collection<User> getMutualFriends(Integer userId1, Integer userId2) {
-        Optional<User> userOptional1 = inMemoryUserStorage.getUserById(userId1);
-        Optional<User> userOptional2 = inMemoryUserStorage.getUserById(userId2);
-        List<User> result = new ArrayList<>();
+    public Collection<UserDto> getMutualFriends(Integer userId1, Integer userId2) {
+        Optional<User> userOptional1 = us.getUserById(userId1);
+        Optional<User> userOptional2 = us.getUserById(userId2);
         if (userOptional1.isEmpty() || userOptional2.isEmpty()) {
             log.error("Ошибка при получении общих друзей");
             throw new NotFoundException("Один из пользователей не найден");
         }
-        List<Integer> ids = userOptional1.get().getAllFriends();
-        User user2 = userOptional2.get();
-        for (Integer id : ids) {
-            if (user2.getFriend(id).isPresent()) {
-                inMemoryUserStorage.getUserById(id).ifPresent(result::add);
-            }
-        }
+        List<User> result = fss.getMutualFriends(userId1, userId2);
         if (result.isEmpty()) {
             log.error("Нет общих друзей");
             throw new NotFoundException("Общие друзья не найдены");
         }
         log.info("Возвращён список общих друзей пользователей: {}, {}", userId2, userId1);
-        return result;
+        return result.stream()
+                .map(UserMapper::mapToUserDto)
+                .toList();
     }
 
     private void validateUser(User user) {
