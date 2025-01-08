@@ -24,33 +24,33 @@ public class MpaController {
 
     @GetMapping
     public List<MpaDto> getAllMpa() {
-        log.info("Пришел запрос Get /mpa");
+        log.debug("Пришел запрос Get /mpa");
         List<MpaDto> resMpa = ms.getAllRatings();
-        log.info("Отправлен ответ Get /mpa : {}", resMpa);
+        log.debug("Отправлен ответ Get /mpa : {}", resMpa);
         return resMpa;
     }
 
     @PostMapping
     public MpaDto addMpa(@RequestBody NewMpaRequest request) {
-        log.info("пришел Post запрос /mpa с жанром: {}", request);
+        log.debug("пришел Post запрос /mpa с жанром: {}", request);
         MpaDto mpaDto = ms.create(request);
-        log.info("Отправлен ответ Post /mpa с жанром: {}", mpaDto);
+        log.debug("Отправлен ответ Post /mpa с жанром: {}", mpaDto);
         return mpaDto;
     }
 
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping("/{mpaId}")
     public void removeMpa(@PathVariable Integer mpaId) {
-        log.info("пришел Delete запрос /mpa/{genreId} с id рейтинга {}", mpaId);
+        log.debug("пришел Delete запрос /mpa/{genreId} с id рейтинга {}", mpaId);
         ms.delete(mpaId);
-        log.info("отправлен ответ Delete /mpa/{genreId} с id рейтинга {}", mpaId);
+        log.debug("отправлен ответ Delete /mpa/{genreId} с id рейтинга {}", mpaId);
     }
 
     @GetMapping("/{mpaId}")
     public MpaDto getMpaById(@PathVariable Integer mpaId) {
-        log.info("Пришел запрос Get /mpa/{mpaId}");
+        log.debug("Пришел запрос Get /mpa/{mpaId}");
         MpaDto mpaDto = ms.getRatingById(mpaId);
-        log.info("Отправлен ответ Get /mpa/{mpaId}");
+        log.debug("Отправлен ответ Get /mpa/{mpaId}");
         return mpaDto;
     }
 }

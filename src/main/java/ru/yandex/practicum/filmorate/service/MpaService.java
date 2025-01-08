@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import io.micrometer.common.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +34,7 @@ public class MpaService {
 
     public MpaDto create(NewMpaRequest request) {
         Mpa mpa = MpaMapper.mapToMpa(request);
-        if (mpa.getName().isEmpty() || mpa.getName().isBlank()) {
+        if (mpa.getName().isEmpty() || StringUtils.isBlank(mpa.getName())) {
             log.error("Ошибка при валидации рейтинга: название не может быть пустым");
             throw new ValidateException("Название рейтинга не может быть пустым");
         }

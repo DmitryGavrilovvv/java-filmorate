@@ -35,10 +35,7 @@ abstract class BaseRepository<T> {
     }
 
     protected void update(String query, Object... params) {
-        int rowsUpdated = jdbc.update(query, params);
-        if (rowsUpdated == 0) {
-            throw new InternalServerException("Не удалось найти данные для обновления");
-        }
+        jdbc.update(query, params);
     }
 
     protected int insert(String query, Object... params) {

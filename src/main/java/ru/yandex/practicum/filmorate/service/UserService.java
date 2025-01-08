@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import io.micrometer.common.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -129,17 +130,17 @@ public class UserService {
 
     private void validateUser(User user) {
         String email = user.getEmail();
-        if (email.isBlank() || !email.contains("@")) {
+        if (StringUtils.isBlank(email) || !email.contains("@")) {
             log.error("Ошибка при добавлении пользователя: некорректная почта - {}", email);
             throw new ValidateException("Некорректная электронная почта.");
         }
         String login = user.getLogin();
-        if (login.isEmpty() || login.isBlank() || login.contains(" ")) {
+        if (login.isEmpty() || StringUtils.isBlank(login) || login.contains(" ")) {
             log.error("Ошибка при добавлении пользователя: некорректный логин - {}", login);
             throw new ValidateException("Некорректный логин.");
         }
         String name = user.getName();
-        if (name == null || name.isEmpty() || name.isBlank()) {
+        if (name == null || name.isEmpty() || StringUtils.isBlank(name)) {
             log.info("Пользователь использует логин - {} вместо имени", user.getLogin());
             user.setName(user.getLogin());
         }

@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import io.micrometer.common.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -106,7 +107,8 @@ public class FilmService {
 
     private void validateFilm(Film film) {
         String name = film.getName();
-        validate(() -> name.isEmpty() || name.isBlank(), "Название не может быть пустым.");
+        validate(() -> name.isEmpty() ||
+                StringUtils.isBlank(name), "Название не может быть пустым.");
         validate(() -> film.getDescription().length() > 200, "Максимальная длина строки - 200 символов.");
         validate(() -> film.getDuration() < 1, "Продолжительность не может быть отрицательной.");
         LocalDate releaseDate = film.getReleaseDate();

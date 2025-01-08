@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import io.micrometer.common.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,8 +34,8 @@ public class GenreService {
 
     public GenreDto create(NewGenreRequest request) {
         Genre genre = GenreMapper.mapToGenre(request);
-        if (genre.getName().isEmpty() || genre.getName().isBlank()) {
-            log.error("Ошибка при валидации жанра: название не может быть пустым");
+        if (genre.getName().isEmpty() || StringUtils.isBlank(genre.getName())) {
+            log.warn("Ошибка при валидации жанра: название не может быть пустым");
             throw new ValidateException("Название жанра не может быть пустым");
         }
         genre = gs.create(genre);
