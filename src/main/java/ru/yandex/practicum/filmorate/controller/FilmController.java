@@ -26,56 +26,37 @@ public class FilmController {
 
     @GetMapping
     public Collection<FilmDto> getFilms() {
-        log.debug("Пришел запрос Get /films");
-        Collection<FilmDto> resFilms = filmService.findAll();
-        log.debug("Отправлен ответ Get /films : {}", resFilms);
-        return resFilms;
+        return filmService.findAll();
     }
 
     @PostMapping
     public FilmDto addFilm(@RequestBody NewFilmRequest newFilm) {
-        log.debug("пришел Post запрос /films с фильмом: {}", newFilm);
-        FilmDto film = filmService.create(newFilm);
-        log.debug("Отправлен ответ Post /films с фильмом: {}", film);
-        return film;
+        return filmService.create(newFilm);
     }
 
     @PutMapping
     public FilmDto updateFilm(@RequestBody UpdateFilmRequest newFilm) {
-        log.debug("пришел Put запрос /films с фильмом: {}", newFilm);
-        FilmDto film = filmService.update(newFilm.getId(), newFilm);
-        log.debug("Отправлен ответ Put /films с фильмом: {}", film);
-        return film;
+        return filmService.update(newFilm.getId(), newFilm);
     }
 
     @PutMapping("/{filmId}/like/{userId}")
     public void addLike(@PathVariable Integer userId, @PathVariable Integer filmId) {
-        log.debug("пришел Put запрос /films/{id}/like/{userId} с id пользователя {}, и id фильма {}", userId, filmId);
         filmService.addLike(userId, filmId);
-        log.debug("отправлен ответ Put /films/{id}/like/{userId} с id пользователя {}, и id фильма {}", userId, filmId);
     }
 
     @DeleteMapping("/{filmId}/like/{userId}")
     public void removeLike(@PathVariable Integer userId, @PathVariable Integer filmId) {
-        log.debug("пришел Delete запрос /films/{id}/like/{userId} с id пользователя {}, и id фильма {}", userId, filmId);
         filmService.removeLike(userId, filmId);
-        log.debug("отправлен ответ Delete /films/{id}/like/{userId} с id пользователя {}, и id фильма {}", userId, filmId);
     }
 
     @GetMapping("/popular")
     public List<FilmDto> getMostPopularFilms(@RequestParam(required = false, defaultValue = "10") Integer count) {
-        log.debug("Пришел запрос Get /films/popular");
-        List<FilmDto> films = filmService.getBestFilms(count);
-        log.debug("Отправлен ответ Get /films/popular");
-        return films;
+        return filmService.getBestFilms(count);
     }
 
     @GetMapping("/{filmId}")
     public FilmDto getFilmById(@PathVariable Integer filmId) {
-        log.debug("Пришел запрос Get /films/{filmId}");
-        FilmDto film = filmService.getFilmById(filmId);
-        log.debug("Отправлен ответ Get /films/{filmId}");
-        return film;
+        return filmService.getFilmById(filmId);
     }
 
 

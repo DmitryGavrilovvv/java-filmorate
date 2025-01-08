@@ -24,33 +24,22 @@ public class GenreController {
 
     @GetMapping
     public List<GenreDto> getGenres() {
-        log.debug("Пришел запрос Get /genres");
-        List<GenreDto> resGenres = gs.getAllGenres();
-        log.debug("Отправлен ответ Get /genres : {}", resGenres);
-        return resGenres;
+        return gs.getAllGenres();
     }
 
     @PostMapping
     public GenreDto addGenre(@RequestBody NewGenreRequest request) {
-        log.debug("пришел Post запрос /genres с жанром: {}", request);
-        GenreDto genreDto = gs.create(request);
-        log.debug("Отправлен ответ Post /genres с жанром: {}", genreDto);
-        return genreDto;
+        return gs.create(request);
     }
 
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping("/{genreId}")
     public void removeGenre(@PathVariable Integer genreId) {
-        log.debug("пришел Delete запрос /genres/{genreId} с id жанра {}", genreId);
         gs.delete(genreId);
-        log.debug("отправлен ответ Delete /genres/{genreId} с id жанра {}", genreId);
     }
 
     @GetMapping("/{genreId}")
     public GenreDto getGenreById(@PathVariable Integer genreId) {
-        log.debug("Пришел запрос Get /genres/{genreId}");
-        GenreDto genreDto = gs.getGenreById(genreId);
-        log.debug("Отправлен ответ Get /genres/{genreId}");
-        return genreDto;
+        return gs.getGenreById(genreId);
     }
 }

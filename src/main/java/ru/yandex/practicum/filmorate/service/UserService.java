@@ -95,7 +95,7 @@ public class UserService {
             throw new NotFoundException("Один из пользователей не найден");
         }
         fss.addFriend(userId1, userId2);
-        log.info("Пользователи добавлены в друзья");
+        log.info("Пользователи {},{} добавлены в друзья", userId1, userId2);
     }
 
     public UserDto removeFriend(Integer userId1, Integer userId2) {
@@ -106,7 +106,7 @@ public class UserService {
             throw new NotFoundException("Один из пользователей не найден");
         }
         fss.deleteFriend(userId1, userId2);
-        log.info("Пользователи удалены из друзей");
+        log.info("Пользователи {},{} удалены из друзей", userId1, userId2);
         return getUserById(userId1);
     }
 

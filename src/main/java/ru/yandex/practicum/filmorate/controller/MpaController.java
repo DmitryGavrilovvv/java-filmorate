@@ -24,33 +24,22 @@ public class MpaController {
 
     @GetMapping
     public List<MpaDto> getAllMpa() {
-        log.debug("Пришел запрос Get /mpa");
-        List<MpaDto> resMpa = ms.getAllRatings();
-        log.debug("Отправлен ответ Get /mpa : {}", resMpa);
-        return resMpa;
+        return ms.getAllRatings();
     }
 
     @PostMapping
     public MpaDto addMpa(@RequestBody NewMpaRequest request) {
-        log.debug("пришел Post запрос /mpa с жанром: {}", request);
-        MpaDto mpaDto = ms.create(request);
-        log.debug("Отправлен ответ Post /mpa с жанром: {}", mpaDto);
-        return mpaDto;
+        return ms.create(request);
     }
 
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping("/{mpaId}")
     public void removeMpa(@PathVariable Integer mpaId) {
-        log.debug("пришел Delete запрос /mpa/{genreId} с id рейтинга {}", mpaId);
         ms.delete(mpaId);
-        log.debug("отправлен ответ Delete /mpa/{genreId} с id рейтинга {}", mpaId);
     }
 
     @GetMapping("/{mpaId}")
     public MpaDto getMpaById(@PathVariable Integer mpaId) {
-        log.debug("Пришел запрос Get /mpa/{mpaId}");
-        MpaDto mpaDto = ms.getRatingById(mpaId);
-        log.debug("Отправлен ответ Get /mpa/{mpaId}");
-        return mpaDto;
+        return ms.getRatingById(mpaId);
     }
 }
