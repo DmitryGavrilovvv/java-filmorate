@@ -2,16 +2,16 @@ package ru.yandex.practicum.filmorate.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-
 @Data
+@NoArgsConstructor
 public class User {
     private int id;
     @NonNull
@@ -31,7 +31,6 @@ public class User {
         this.login = login;
         this.name = name;
         this.birthday = birthday;
-        friends = new HashSet<>();
     }
 
     public void addFriend(Integer id) {

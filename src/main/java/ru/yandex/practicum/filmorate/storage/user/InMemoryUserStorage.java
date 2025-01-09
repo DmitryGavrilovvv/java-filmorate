@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.*;
 
@@ -39,6 +40,11 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
+    public boolean delete(Integer id) {
+        return false;
+    }
+
+    @Override
     public Optional<User> getUserById(Integer id) {
         if (users.containsKey(id)) {
             return Optional.of(users.get(id));
@@ -47,7 +53,6 @@ public class InMemoryUserStorage implements UserStorage {
         return Optional.empty();
     }
 
-    @Override
     public Optional<List<User>> getFriends(Integer id) {
         List<User> result = new ArrayList<>();
         if (users.isEmpty()) {
